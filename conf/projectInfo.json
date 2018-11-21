@@ -1,0 +1,22 @@
+{
+  "JERSEYBBW": {
+    "projectHome": "/usr/local/tomcatgroup",
+    "projectType": "jersey",
+    "backupConfPath": "/home/longrise/testleap/jersy/bak",
+    "tomcats": [
+      "93"
+    ],
+    "serviceCheckUrl": "",
+    "serviceMaxCheckTime": 400
+  },
+  "INSHACCDEMO": {
+    "projectHome": "/usr/longrise/LEAP/LEAP.Project/INSHDEMO",
+    "projectType": "leap",
+    "tomcats": [
+      "46"
+    ],
+    "serviceCheckUrl": "/LEAP/Resource/generalIndex/Login2.html",
+    "serviceMaxCheckTime": 400
+  }
+
+}

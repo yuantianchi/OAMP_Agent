@@ -1,0 +1,2 @@
+PROJECT_INFO = {}
+CONF_INFO={}

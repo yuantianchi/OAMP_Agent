@@ -1,0 +1,19 @@
+{
+  "serverIp": "192.168.7.219",
+  "proxyRedis": {
+    "serverIP": "192.168.7.216",
+    "port": "6379",
+    "channel":"OAMP_Anget",
+    "password":"longrise"
+  },
+  "proxySftp": {
+    "serverIP": "192.168.7.216",
+    "port": "62222",
+    "username": "longrise",
+    "password": "DmIeVzE4",
+    "proxyPath": "/home/longrise/testleap",
+    "localPath": "/home/longrise/testleap/file"
+  },
+  "nginxUpstreamPath":"/usr/local/nginx/conf/upstream.conf"
+
+}

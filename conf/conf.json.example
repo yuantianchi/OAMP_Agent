@@ -1,0 +1,19 @@
+{
+  "serverIp": "192.168.7.219",                              ##服务器ip
+  "proxyRedis": {
+    "serverIP": "192.168.7.216",                            ##redis代理服务器地址
+    "port": "6379",                                         ##redis端口
+    "channel":"OAMP_Anget",                                 ##redis订阅频道
+    "password":"longrise"                                   ##redis密码
+  },
+  "proxySftp": {
+    "serverIP": "192.168.7.216",                            ##sftp远程服务器地址
+    "port": "62222",                                        ##sftp端口
+    "username": "longrise",
+    "password": "DmIeVzE4",
+    "proxyPath": "/home/longrise/testleap",
+    "localPath": "/home/longrise/testleap/file"
+  },
+  "nginxUpstreamPath":"/usr/local/nginx/conf/upstream.conf"
+
+}
