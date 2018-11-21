@@ -2,20 +2,18 @@
 # !-*- coding:utf-8 -*-
 
 from bin import ProjectFunc, Nginxfunc, Tomcat,Init
-from util import Mail
-
+from util import Mail,PrintLog
+import json
 T = Tomcat.getInstance()
 N = Nginxfunc.getInstance()
 M = Mail.getInstance()
 init = Init.getInstance()
 init.getProjectInfo()
+LogObj=PrintLog.getInstance()
 
 class Menu:
     def __init__(self, info):
         self.info = info
-        self.P = ProjectFunc.getInstance(info)
-        print("info:", self.info)
-
 
     def initProjectConf(self):
         projectConfig=self.info
@@ -23,7 +21,7 @@ class Menu:
         init.getProjectInfo()
 
     def updateProject(self):
-        self.P.updateProject()
+        ProjectFunc.getInstance(self.info).updateProject()
 
     def restartProjectTom(self):
         projectName = self.info["projectName"]
@@ -36,22 +34,24 @@ class Menu:
             self.tomcatList(tom)
 
     def stopTomcat(self):
-        tomcatList = self.info["tomcatList"]
+        tomcatList = json.loads(self.info["tomcatList"])
         for tom in tomcatList:
-            tomName = "tomcatA" + tom
+            tomName = "tomcatA" + str(tom)
             T.stopTomcat(tomName)
             N.closeNginxUpstream(tom)
+        LogObj.info("关闭tomcatList:%s完成" % (tomcatList))
 
     def startTomcat(self):
-        tomcatList = self.info["tomcatList"]
+        tomcatList = json.loads(self.info["tomcatList"])
         for tom in tomcatList:
-            tomName = "tomcatA" + tom
+            tomName = "tomcatA" + str(tom)
             T.startTomcat(tomName)
             N.openNginxUpstream(tom)
+        LogObj.info("启动tomcatList:%s完成"%(tomcatList))
 
     #从本机拿资源更新（已上传更新文件到服务上时使用）
     def localUpdateProject(self):
-        self.P.localUpdateProject()
+        ProjectFunc.getInstance(self.info).localUpdateProject()
 
     def help(self):
         pass
