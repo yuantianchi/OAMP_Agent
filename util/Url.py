@@ -34,11 +34,10 @@ class Url:
                 return True
             else:
                 currTime = T.getCurrentTime()
-                print("耗时:",T.getReduceTime(startTime, currTime))
+                print("耗时:", T.getReduceTime(startTime, currTime))
                 if T.getReduceTime(startTime, currTime) >= maxcheckTime:
                     LogObj.error("端口：%s服务启动失败" % ("80" + str(tomcatId)))
                     return False
-
 
 def getInstance():
     return Url()

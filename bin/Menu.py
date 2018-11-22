@@ -1,55 +1,57 @@
 #!/usr/bin/env python
 # !-*- coding:utf-8 -*-
 
-from bin import ProjectFunc, Nginxfunc, Tomcat,Init
-from util import Mail,PrintLog
+from bin import ProjectFunc, Nginxfunc, Tomcat, Init
+from util import Mail, PrintLog
 import json
+
 T = Tomcat.getInstance()
 N = Nginxfunc.getInstance()
 M = Mail.getInstance()
 init = Init.getInstance()
 init.getProjectInfo()
-LogObj=PrintLog.getInstance()
+LogObj = PrintLog.getInstance()
+
 
 class Menu:
     def __init__(self, info):
         self.info = info
 
     def initProjectConf(self):
-        projectConfig=self.info
+        projectConfig = self.info
         init.initProjectInfo(projectConfig)
         init.getProjectInfo()
 
     def updateProject(self):
         ProjectFunc.getInstance(self.info).updateProject()
-
+    #重启项目对应的所有tomcat
     def restartProjectTom(self):
         projectName = self.info["projectName"]
         T.restartProjectTom(projectName)
 
-    def restartTomcats(self):
-        tomcatList = self.info["tomcatList"]
-        for tom in tomcatList:
-            self.stopTomcat(tom)
-            self.tomcatList(tom)
+    #单独重启某个tomcat
+    def restartOneTomcat(self):
+        tomcatId = T.handleTomcatId(self.info["tomcatId"])
+        self.stopOneTomcat(tomcatId)
+        self.startOneTomcat(tomcatId)
 
-    def stopTomcat(self):
-        tomcatList = json.loads(self.info["tomcatList"])
-        for tom in tomcatList:
-            tomName = "tomcatA" + str(tom)
-            T.stopTomcat(tomName)
-            N.closeNginxUpstream(tom)
-        LogObj.info("关闭tomcatList:%s完成" % (tomcatList))
+    #单独停止某个tomcat
+    def stopOneTomcat(self,tomcatId=None):
+        if tomcatId is None:
+            tomcatId = T.handleTomcatId(self.info["tomcatId"])
+        tomcatName = "tomcatA" + tomcatId
+        T.stopTomcat(tomcatName)
+        N.closeNginxUpstream(tomcatId)
 
-    def startTomcat(self):
-        tomcatList = json.loads(self.info["tomcatList"])
-        for tom in tomcatList:
-            tomName = "tomcatA" + str(tom)
-            T.startTomcat(tomName)
-            N.openNginxUpstream(tom)
-        LogObj.info("启动tomcatList:%s完成"%(tomcatList))
+    #单独启动某个tomcat
+    def startOneTomcat(self,tomcatId=None):
+        if tomcatId is None:
+            tomcatId = T.handleTomcatId(self.info["tomcatId"])
+        tomcatName = "tomcatA" + tomcatId
+        T.startTomcat(tomcatName)
+        N.openNginxUpstream(tomcatId)
 
-    #从本机拿资源更新（已上传更新文件到服务上时使用）
+    # 从本机拿资源更新（已上传更新文件到服务上时使用）
     def localUpdateProject(self):
         ProjectFunc.getInstance(self.info).localUpdateProject()
 

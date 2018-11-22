@@ -110,6 +110,7 @@ class Tomcat(object):
             return False
         LogObj.info("will be restarted tomcat tag is :" + str(tomcatList))
         for tomcatId in tomcatList:
+            tomcatId=self.handleTomcatId(tomcatId)
             tomcatName = "tomcatA" + tomcatId
             Nginx.closeNginxUpstream(tomcatId)
             self.stopTomcat(tomcatName)
@@ -126,12 +127,13 @@ class Tomcat(object):
             LogObj.info(" project %s update completed" % (tomcatName))
         return True
 
-    # def getTomcatName(self, tag):
-    #     if int(tag) >= 10:
-    #         tomcatName = "tomcatA" + str(tag)
-    #     else:
-    #         tomcatName = "tomcatA0" + str(tag)
-    #     return tomcatName
+    #将小于两位数的tomcatId前面加0
+    def handleTomcatId(self, tag):
+        if int(tag) < 10:
+            tomcatId = "0" + str(tag)
+        else:
+            tomcatId = str(tag)
+        return tomcatId
 
 
 def getInstance():
