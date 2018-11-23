@@ -37,7 +37,7 @@ class Tomcat(object):
                 LogObj.info("%s has been closed" % (tomcatName))
                 break
             killcmd = "kill -9 %s" %(pid)
-            LogObj.info("try again stop %s ,exec: %s" % (tomcatName, killcmd))
+            LogObj.info("try again stop %s, exec: %s" % (tomcatName, killcmd))
             os.system(killcmd)
             time.sleep(2)
             status = self.checkTomcat(tomcatName)
@@ -53,14 +53,14 @@ class Tomcat(object):
     # 启动tomcat
     def startTomcat(self, tomcatName):
         startCmd = "service %s start" % tomcatName
-        LogObj.info("exec command:" + startCmd)
+        LogObj.info("exec: " + startCmd)
         os.system(startCmd)
         time.sleep(5)
         status = self.checkTomcat(tomcatName)
         num = 0
         while not status:
             num = num + 1
-            LogObj.info("try again start %s ,exec: %s" % (tomcatName, startCmd))
+            LogObj.info("try again start %s, exec: %s" % (tomcatName, startCmd))
             os.system(startCmd)
             time.sleep(5)
             status = self.checkTomcat(tomcatName)
@@ -71,8 +71,6 @@ class Tomcat(object):
                 LogObj.error("start %s failed" % (tomcatName))
             if num >= self.stopFailRetriesNum:
                 LogObj.error("end try start %s" % (tomcatName))
-                # break
-                print("当前线程数量:", WorkThread.WorkThread.getThreadCount())
                 LogObj.error("start service failed, terminate the program")
                 exit("start %s failed"%(tomcatName))
 
@@ -104,11 +102,9 @@ class Tomcat(object):
         serverIp = bin.CONF_INFO["serverIp"]
         serviceCheckUrl = projectInfo["serviceCheckUrl"]
         maxCheckTime=projectInfo["serviceMaxCheckTime"]
-
         if tomcatList is None:
-            LogObj.error("the restart tomcat tag not given")
-            return False
-        LogObj.info("will be restarted tomcat tag is :" + str(tomcatList))
+            exit("the restart tomcat tag not given")
+        LogObj.info("will be restarted tomcat tag is: " + str(tomcatList))
         for tomcatId in tomcatList:
             tomcatId=self.handleTomcatId(tomcatId)
             tomcatName = "tomcatA" + tomcatId
@@ -120,12 +116,11 @@ class Tomcat(object):
                     serviceCheckUrl)
                 if U.checkService(tomcatId, checkurl, maxCheckTime):
                     Nginx.openNginxUpstream(tomcatId)
-                    LogObj.info("%s Restart success !" % (tomcatName))
+                    LogObj.info("%s restart success!" % (tomcatName))
                 else:
-                    LogObj.error("%s restart failed, update operation stopped" % (tomcatName))
-                    return "false"
+                    exit("check %s correspond service start timeout failed, update operation stopped" % (tomcatName))
             LogObj.info(" project %s update completed" % (tomcatName))
-        return True
+
 
     #将小于两位数的tomcatId前面加0
     def handleTomcatId(self, tag):

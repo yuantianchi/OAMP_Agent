@@ -24,20 +24,22 @@ class Url:
 
     # 服务检测
     def checkService(self, tomcatId, checkurl, maxcheckTime=300):
-        LogObj.info("Listening port %s service startup" % ("80" + tomcatId))
+        LogObj.info("Listening port %s service startup..." % ("80" + tomcatId))
         startTime = T.getCurrentTime()
         while True:
             codestatus = self.getHttpStatusCode(checkurl)
             time.sleep(1)
+            consumeTime = T.getReduceTime(startTime, T.getCurrentTime())
             if (codestatus == 200):
-                LogObj.info("端口：%s服务启动成功" % ("80" + str(tomcatId)))
+                LogObj.info(
+                    "port %s Service started successfully, time consuming: %ss" % ("80" + str(tomcatId), consumeTime))
                 return True
             else:
-                currTime = T.getCurrentTime()
-                print("耗时:", T.getReduceTime(startTime, currTime))
-                if T.getReduceTime(startTime, currTime) >= maxcheckTime:
-                    LogObj.error("端口：%s服务启动失败" % ("80" + str(tomcatId)))
+                if consumeTime >= maxcheckTime:
+                    LogObj.error("port %s service failed to start, time consuming: %ss" % ("80" + str(tomcatId)),
+                                 consumeTime)
                     return False
+
 
 def getInstance():
     return Url()

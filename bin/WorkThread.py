@@ -15,7 +15,7 @@ class WorkThread(threading.Thread):
 
     def run(self):
         try:
-            print("run 此时线程数：", self.getThreadCount())
+            LogObj.info("run 此时线程数：%s"%(self.getThreadCount()))
             info = eval(self.msg[2].decode("utf-8"))
             methodName = info["method"]
             Me = Menu.getInstance(info)
@@ -23,10 +23,11 @@ class WorkThread(threading.Thread):
                 getattr(Me, methodName)()
             else:
                 LogObj.error("specified method[methodName:\"%s\"] error,no such method" % (methodName))
+            LogObj.info("%s operate complete ！" % (methodName))
             # Menu.Menu.sendMail("%s operate complete ！" % (methodName))
         except BaseException as e:
-            # Menu.Menu.sendMail("%s 操作失败：%s" % (methodName, str(e)))
-            print(str(e))
+            LogObj.error("%s operation failed：%s" % (methodName, str(e)))
+            # Menu.Menu.sendMail("ERROR %s operation failed：%s" % (methodName, str(e)))
 
     @classmethod
     def getThreadCount(cls):

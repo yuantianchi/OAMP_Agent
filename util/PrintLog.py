@@ -39,5 +39,4 @@ class PrintLog(logging.Logger):
 def getInstance(filename=None):
     return PrintLog(filename)
 
-if __name__ == '__main__':
-    getInstance().info("xxx")
+

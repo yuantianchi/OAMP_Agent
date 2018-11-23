@@ -3,7 +3,6 @@
 
 from bin import ProjectFunc, Nginxfunc, Tomcat, Init
 from util import Mail, PrintLog
-import json
 
 T = Tomcat.getInstance()
 N = Nginxfunc.getInstance()
