@@ -1,9 +1,11 @@
+#!/usr/bin/env python
+# !-*- coding:utf-8 -*-
 import redis
 import time
 import threading
+import os
 
-from util import JsonFileFunc
-from util import Path
+from bin.base.tool import JsonFileFunc, Path
 
 jff = JsonFileFunc.getInstance()
 p = Path.getInstance()
@@ -11,13 +13,12 @@ p = Path.getInstance()
 
 class RedisFunc:
     def __init__(self):
-        self.confPath = p.confDirPath + "conf.json"
+        self.confPath = p.confDirPath + os.sep + "conf.json"
         redisConfig = jff.readFile(self.confPath)["proxyRedis"]
         self.ip = redisConfig["serverIP"]
         self.port = redisConfig["port"]
         self.password = redisConfig["password"]
         self.channel = redisConfig["channel"]
-
         self.__conn = redis.Redis(host=self.ip, port=self.port, password=self.password)
 
     # 发布

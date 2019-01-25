@@ -3,7 +3,7 @@
 import json
 import codecs
 
-from util import PrintLog
+from bin.base.log import PrintLog
 
 L = PrintLog.getInstance()
 
@@ -19,8 +19,6 @@ class JsonFileFunc(object):
               data = json.load(f)
         except Exception as e:
             L.error("read [  %s ] not exists, %s", str(filePath), str(e))
-            pass
-
         return data
 
 
@@ -29,9 +27,19 @@ class JsonFileFunc(object):
         try:
             with codecs.open(filePath, 'w', encoding='utf-8') as tmpFile:
                 tmpFile.write(json.dumps(data, ensure_ascii=False, indent=4))
+                return True
         except Exception as e:
             L.error('create %s fail , %s', str(filePath), str(e))
-            pass
+            return False
+
+    # json 格式转换为字符串
+    def json_to_str(self,json_data):
+        if isinstance(json_data, str):
+            return json_data
+        if json_data is None:
+            return ''
+        return json.dumps(json_data)
+
 
 def getInstance():
     return JsonFileFunc()

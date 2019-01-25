@@ -9,7 +9,7 @@
 import smtplib
 from email.mime.text import MIMEText
 from email.utils import formataddr
-from util import PrintLog
+from bin.base.log import PrintLog
 
 LogObj = PrintLog.getInstance()
 
@@ -18,14 +18,14 @@ class Mail:
         pass
 
     def mail(self, msg_content, receivers=[], receivers_EMail=[], subject=None):
-        sender = 'OAMP_Anget'
+        sender = 'OAMP_anget'
         seder_EMail = 'yuantc@longrise.com.cn'
-        seder_passwd = ''  # 发件人邮箱账号，正式环境时配置
+        seder_passwd = '20180423'  # 发件人邮箱账号，正式环境时配置
 
         if not receivers:
             receivers = ['运维部人员']
         if not receivers_EMail:
-            receivers_EMail = ['yuantc@longrise.com.cn']
+            receivers_EMail = ['yuantc@longrise.com.cn','wuqiang@longrise.com.cn','yaogc@longrise.com.cn']
 
         if subject is None:
             subject = "运维平台消息"
@@ -42,16 +42,16 @@ class Mail:
             server.sendmail(seder_EMail, receivers_EMail, msg.as_string())  # 括号中对应的是发件人邮箱账号、收件人邮箱账号、发送邮件
             server.quit()  # 关闭连接
         except smtplib.SMTPException as e:  # 如果 try 中的语句没有执行，则会执行下面的 ret=False
-            print(e)
+            LogObj.error(str(e))
             ret = False
         return ret
 
     def sendMail(self, msg_content, receivers=[], receivers_EMail=[], subject=None):
         ret = self.mail(msg_content=msg_content, receivers=receivers, receivers_EMail=receivers_EMail, subject=subject)
         if ret:
-            LogObj.info("邮件发送成功")
+            LogObj.info("Mail send success!")
         else:
-            LogObj.error("邮件发送失败")
+            LogObj.error("Mail failed to send!")
 
 
 def getInstance():

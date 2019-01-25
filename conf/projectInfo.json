@@ -1,22 +1,70 @@
 {
-  "JERSEYBBW": {
-    "projectHome": "/usr/local/tomcatgroup",
-    "projectType": "jersey",
-    "backupConfPath": "/home/longrise/testleap/jersy/bak",
-    "tomcats": [
-      "93"
-    ],
-    "serviceCheckUrl": "",
-    "serviceMaxCheckTime": 400
-  },
-  "INSHACCDEMO": {
-    "projectHome": "/usr/longrise/LEAP/LEAP.Project/INSHDEMO",
-    "projectType": "leap",
-    "tomcats": [
-      "46"
-    ],
-    "serviceCheckUrl": "/LEAP/Resource/generalIndex/Login2.html",
-    "serviceMaxCheckTime": 400
-  }
-
+    "BBT": {
+        "maxRestartCount": 3,
+        "serviceCheckUrl": "/BBT/restservices/servicecheck/oamp_checkTomcatAvailable/query",
+        "backupFilePath": "/datafile/fileshare/DevOps/project_update\\BBT",
+        "backupConfPath": null,
+        "serviceMaxCheckTime": 600,
+        "projectType": "LEAP",
+        "tomcatInfo": [
+            {
+                "name": "tomcatA04",
+                "port": "8004"
+            },
+            {
+                "name": "tomcatA05",
+                "port": "8005"
+            },
+            {
+                "name": "tomcatA06",
+                "port": "8006"
+            },
+            {
+                "name": "tomcatA07",
+                "port": "8007"
+            },
+            {
+                "name": "tomcatA08",
+                "port": "8008"
+            },
+            {
+                "name": "tomcatA09",
+                "port": "8009"
+            }
+        ],
+        "projectHome": "/usr/longrise/LEAP/BBT",
+        "project_name": "保宝app"
+    },
+    "INSHACCDEMO": {
+        "serviceCheckUrl": "INSHTEST/LEAP/Resource/generalIndex/Login2.html",
+        "backupFilePath": "/home/longrise/testleap/INSHACCDEMO",
+        "backupConfPath": "",
+        "serviceMaxCheckTime": 3,
+        "projectType": "LEAP",
+        "tomcatInfo": [
+            {
+                "name": "tomcatA92",
+                "port": "8092"
+            }
+        ],
+        "projectHome": "/home/longrise/testleap/project/INSHACCDEMO",
+        "project_name": "OAMP_项目更新测试",
+        "maxRestartCount": 3
+    },
+    "INSY125": {
+        "maxRestartCount": 3,
+        "serviceCheckUrl": "INSY125/restservices/servicecheck/oamp_checkTomcatAvailable/query",
+        "backupFilePath": "/data/smbshare/project_update_share/INSY125",
+        "backupConfPath": "",
+        "serviceMaxCheckTime": 600,
+        "projectType": "LEAP",
+        "tomcatInfo": [
+            {
+                "name": "tomcatA73",
+                "port": "8073"
+            }
+        ],
+        "projectHome": "/usr/longrise/LEAP/INSY125",
+        "project_name": "OAMP_项目更新测试"
+    }
 }

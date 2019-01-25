@@ -1,2 +1,4 @@
 paramiko==2.4.2
 requests==2.20
+tornado==5.1.1
+redis==2.10.6

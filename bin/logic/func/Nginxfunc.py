@@ -1,24 +1,33 @@
 #!/usr/bin/env python
 # !-*- coding:utf-8 -*-
-from util import PrintLog
+from bin.base.log import PrintLog
 import bin
 import os
 LogObj = PrintLog.getInstance()
 
 class NginxFunc:
+    def __init__(self):
+        pass
+
     # 关闭nginx upstream流
-    def closeNginxUpstream(self, tomcatId):
-        LogObj.info("close nginx upstream to 80%s port" % (tomcatId))
+    def closeNginxUpstream(self, nginxPort):
+        nginxUpstreamPath = bin.CONF_INFO.get("nginxUpstreamPath", None)
+        if not nginxUpstreamPath:
+            exit("Nginx path is not specified")
+        LogObj.info("close nginx upstream to %s port" % str(nginxPort))
         # cmd = "sed -i \"s/^.*server.*80%s/#&/g\" %s" % (tomcatId, bin.CONF_INFO["nginxUpstreamPath"])
-        cmd = "sed -i \"/^.*server.*80%s/s/;/ down&/g\" %s" % (tomcatId, bin.CONF_INFO["nginxUpstreamPath"])
+        cmd = "sed -i \"/^.*server.*%s/s/;/ down&/g\" %s" % (nginxPort, nginxUpstreamPath)
         os.system(cmd)
         self.reloadNginx()
 
     # 开启nginx upstream 流
-    def openNginxUpstream(self, tomcatId):
-        LogObj.info("open nginx upstream to 80%s port" % (tomcatId))
+    def openNginxUpstream(self, nginxPort):
+        nginxUpstreamPath = bin.CONF_INFO.get("nginxUpstreamPath", None)
+        if not nginxUpstreamPath:
+            exit("Nginx path is not specified")
+        LogObj.info("open nginx upstream to %s port" % str(nginxPort))
         # cmd = "sed -i \"/^#.*server.*80%s/s/^#\+//\" %s" % (tomcatId, bin.CONF_INFO["nginxUpstreamPath"])
-        cmd = "sed -i \"/^.*server.*80%s.*down/s/ down//g\" %s" % (tomcatId, bin.CONF_INFO["nginxUpstreamPath"])
+        cmd = "sed -i \"/^.*server.*%s.*down/s/ down//g\" %s" % (nginxPort, nginxUpstreamPath)
         os.system(cmd)
         self.reloadNginx()
 

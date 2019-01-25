@@ -1,5 +1,5 @@
 {
-  "serverIp": "192.168.7.219",
+  "serverIp": "127.0.0.1",
   "proxyRedis": {
     "serverIP": "192.168.7.216",
     "port": "6379",
@@ -11,9 +11,16 @@
     "port": "62222",
     "username": "longrise",
     "password": "DmIeVzE4",
-    "proxyPath": "/home/longrise/testleap",
-    "localPath": "/home/longrise/testleap/file"
+    "proxyPath": "/home/longrise/test",
+    "localPath": "/home/longrise/test"
   },
-  "nginxUpstreamPath":"/usr/local/nginx/conf/upstream.conf"
+  "nginxUpstreamPath":"/usr/local/nginx/conf/upstream.conf",
 
+  "redis":{
+    "host":"192.168.7.219",
+    "user":"longrise",
+    "password":"longrise",
+    "port":6379
+  },
+  "localIp":"10.0.0.1"
 }

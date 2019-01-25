@@ -1,6 +1,5 @@
 import paramiko
-from util import PrintLog
-from bin import WorkThread
+from bin.base.log import PrintLog
 import time
 LogObj = PrintLog.getInstance()
 

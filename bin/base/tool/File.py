@@ -1,14 +1,23 @@
 #!/usr/bin/env python
 # !-*- coding:utf-8 -*-
 import os
-class File:
+from bin.base.log import PrintLog
+
+
+class File(object):
     def __init__(self):
-        pass
+        self.LogObj = PrintLog.getInstance()
 
     #若文件夹不存在则创建
     def makedir(self,dir):
         if not os.path.exists(dir):
+            self.LogObj.info("mkdir %s"%(dir))
             os.makedirs(dir)
+    #判断文件是否存在
+    def isExitsFile(self,path):
+        if os.path.exists(path):
+            return True
+        return  False
 
     #判断文件夹是否存在
     def isExitsPath(self,path):
