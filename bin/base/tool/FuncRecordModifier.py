@@ -25,15 +25,30 @@ class FuncRecordFileModifier:
         self.is_finished = not_finished
         self.last_modify_time = ''
         self.is_normal = normal
-
+        self.to_exec_count = 0
+        if bin.PROJECT_INFO is not None:
+            self.to_exec_count = bin.PROJECT_INFO.get(self.projectName, {'tomcatCount': 0}).get('tomcatCount')
         local_ip = bin.CONF_INFO.get('localIp')
         redis_info = bin.CONF_INFO.get('redis')
         host = redis_info.get('host', '127.0.0.1')
         password = redis_info.get('password')
         port = redis_info.get('port', 6379)
-
         self.redis_ins = Redis.getInstance(db=FuncRedisModifier.REDIS_FUNC_DB, host=host, port=port, password=password)
         self.redis_store_key = str(local_ip) + '_func_record_' + str(self.projectName)
+
+
+
+    def init_redis(self):
+        FuncRecord = self.redis_ins.getJson(key=self.redis_store_key)
+        if FuncRecord is None:
+            return None
+        self.operateId = FuncRecord.get('operateId')
+        self.summary = FuncRecord.get('summary')
+        self.is_finished = FuncRecord.get('is_finished')
+        self.last_modify_time = FuncRecord.get('last_modify_time')
+        self.is_normal = FuncRecord.get('is_normal')
+        self.to_exec_count = FuncRecord.get('to_exec_count')
+        return self
 
     def getFuncRecord(self):
         FuncRecord = self.redis_ins.getJson(key=self.redis_store_key)
@@ -44,6 +59,7 @@ class FuncRecordFileModifier:
         self.is_finished = FuncRecord.get('is_finished')
         self.last_modify_time = FuncRecord.get('last_modify_time')
         self.is_normal = FuncRecord.get('is_normal')
+        self.to_exec_count = FuncRecord.get('to_exec_count')
         return self.json()
 
     def set_FuncRecord(self):
@@ -57,11 +73,17 @@ class FuncRecordFileModifier:
             'is_finished': self.is_finished,
             'last_modify_time': self.last_modify_time,
             'is_normal': self.is_normal,
+            'to_exec_count': self.to_exec_count,
         }
         return item
 
+    def setToExecCount(self, to_exec_count):
+        self.to_exec_count = to_exec_count
+        return self
+
     def setOperateId(self, operateId):
         self.operateId = operateId
+        return self
 
     def setSummary(self, summary):
         self.summary = summary
@@ -84,7 +106,7 @@ class FuncRecordFileModifier:
     def getIs_finished(self):
         return self.is_finished
 
-    def getIs_normal(self, is_normal):
+    def getIs_normal(self):
         return self.is_normal
 
 

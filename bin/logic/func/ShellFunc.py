@@ -39,13 +39,13 @@ class AgentProjectFunc(object):
         projectVersion = info.get("projectVersion", None)
         backupFilePath = bin.PROJECT_INFO.get(projectName)["backupFilePath"]
         # updateFilePath = backupFilePath + os.sep + projectVersion + ".tar.gz"
-        updateFilePath = backupFilePath + os.sep + projectVersion
+        updateFilePath = backupFilePath + os.sep + str(projectVersion)
         if not projectName or not projectVersion:
             return _PR.setCode(PR.Code_ERROR).setMsg('更新项目失败，项目名或项目版本为空').setData(projectName)
         if projectName not in bin.PROJECT_INFO:
             return _PR.setCode(PR.Code_ERROR).setMsg('更新项目失败，agent中还未配置%s项目信息' % projectName).setData(projectName)
         if not F.isExitsFile(updateFilePath):
-            return _PR.setCode(PR.Code_ERROR).setMsg("%s项目的%s版本的更新资源不存在" % (projectName, projectVersion))
+            return _PR.setCode(PR.Code_ERROR).setMsg("%s项目的%s版本的更新资源不存在" % (projectName,str(projectVersion)))
         PF = ProjectFunc.getInstance(projectName)
         _PR = PR.getInstance()
         replaceProjectResourcePR = PF.replaceProjectResource(projectVersion)

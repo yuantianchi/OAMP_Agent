@@ -12,10 +12,15 @@ L=PrintLog.getInstance()
 
 
 if __name__ == '__main__':
+#     path = 'Y:\\project_update_remark_bak\\INSY125\\3\\static'
+#     x = os.listdir(path)
+#     print(x)
 
+    # r=os.system("\cp -rf /data/smbshare/project_update_share/INSY125/3/static/* /usr/longrise/LEAP/INSY125/WEB-INF/ResourceLib.TMP/INSY125/LEAP/")
+    # print(r)
     # 重启某个项目对应的所有tomcat
-    # value = {"data":{"method": "restartProject", "projectName": "INSHACCDEMO"}}
-    # r = requests.post('http://192.168.7.219:3099/OAMP_agent/service', data=J.json_to_str(value))
+    # value = {"data":{"method": "restartProject", "projectName": "INSY125"}}
+    # r = requests.post('http://192.168.5.110:3099/OAMP_agent/service', data=J.json_to_str(value))
     # print(r.status_code)
     # print(r.content)
     # 项目更新
@@ -35,31 +40,38 @@ if __name__ == '__main__':
     # r = requests.post('http://192.168.5.110:3099/OAMP_agent/service', data=J.json_to_str(value))
     # print(r.content)
     #
-    # # #初始化项目信息
-    # x = {
-    #     "data": {
-    #         "confData": {
-    #           "INSHACCDEMO": {
-    #             "projectHome": "/home/longrise/testleap/project/INSHACCDEMO",
-    #             "projectType": "LEAP",
-    #             "backupFilePath": "/home/longrise/testleap/INSHACCDEMO",
-    #             "maxRestartCount": 3,
-    #             "tomcatInfo": [
-    #                 {
-    #                     "port": "8092",
-    #                     "name": "tomcatA92"
-    #                 }
-    #             ],
-    #             "backupConfPath": "",
-    #             "serviceMaxCheckTime": 100,
-    #             "serviceCheckUrl": "INSHACCDEMO/restservices/servicecheck/oamp_checkTomcatAvailable/query",
-    #             "project_name": "OAMP_项目更新测试"
-    #         }
-    #         },
-    #         "method": "initProjectConf"
-    #     }
-    # }
-    # r = requests.post('http://192.168.7.219:3099/OAMP_agent/service', data=J.json_to_str(x))
+    # #初始化项目信息
+
+    x = {
+        "data": {
+            "confData": {
+              "INSHACCDEMO": {
+                'upstream_conf_file': '/usr/local/nginx/conf/nginx.conf',
+                'redis_ip': '192.168.7.219',
+                'redis_port': 6379,
+                'redis_password': 'longrise',
+                'local_ip': '192.168.7.216',
+                'backupConfPath': '',
+                "projectHome": "/usr/longrise/LEAP/INSY125",
+                "projectType": "LEAP",
+                "backupFilePath": '/data/smbshare/tmp/1.txt',
+                "maxRestartCount": 3,
+                "tomcatInfo": [
+                    {
+                        "port": "8073",
+                        "name": "tomcatA72"
+                    }
+                ],
+                "backupConfPath": "",
+                "serviceMaxCheckTime": 100,
+                "serviceCheckUrl": "/LEAP/Resource/generalIndex/Login2.html",
+                "project_name": "OAMP_项目更新测试"
+            }
+            },
+            "method": "initProjectConf"
+        }
+    }
+    r = requests.post('http://192.168.5.110:3099/OAMP_agent/service', data=J.json_to_str(x))
     # #重启某个tomcat
     # value = '{"method": "restartOneTomcat", "projectName": "INSY125","tomcatName":"tomcatA74"}'
     # r = requests.post('http://192.168.5.110:3099', data={"data": value})

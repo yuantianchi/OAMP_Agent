@@ -2,7 +2,8 @@
 # !-*- coding:utf-8 -*-
 import bin
 from bin.base.tool import Redis
-
+from bin.base.tool import Mail
+import sys
 REDIS_FUNC_DB = 1
 REDIS_FUNC_STATE_NONE = -2
 REDIS_FUNC_STATE_START = -1
@@ -12,7 +13,10 @@ REDIS_FUNC_STATE_FAILED = 2
 
 
 class FuncRedisModifier(object):
+
     def __init__(self, redis_info=None, redis_k=None):
+        from bin.base.log import PrintLog
+        L=PrintLog.getInstance()
         local_ip = bin.CONF_INFO.get('localIp')
         host = redis_info.get('host', '127.0.0.1')
         password = redis_info.get('password')

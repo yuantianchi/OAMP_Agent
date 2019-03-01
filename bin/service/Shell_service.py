@@ -23,7 +23,6 @@ from bin.init import Init
 
 Init.getInstance().rebuild_memory_val()
 if __name__ == '__main__':
-
     options, args = getopt.getopt(sys.argv[1:], "hm:p:v:", ["help", "method=", "project=", "version="])
     if (len(options) <= 0):
         method = "help"

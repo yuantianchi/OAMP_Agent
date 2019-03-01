@@ -22,8 +22,9 @@ class ProjectFunc:
         self.projectHome = self.projectInfo["projectHome"]
         self.tomcatInfo = dict(self.projectInfo["tomcatInfo"])
         self.backupFilePath = self.projectInfo["backupFilePath"]
+        self.backupConfPath = self.projectInfo["backupConfPath"]
         self.webInfPath = self.projectHome + os.sep + "WEB-INF"
-        self.projectlibPath = self.webInfPath + os.sep + "lib"
+        self.projectLibPath = self.webInfPath + os.sep + "lib"
         self.projectResourceLib = self.webInfPath + os.sep + "ResourceLib"
         self.projectStaticPath = self.webInfPath + os.sep + "ResourceLib.TMP" + os.sep + self.projectName + os.sep + "LEAP" + os.sep
 
@@ -57,7 +58,7 @@ class ProjectFunc:
     def handleResource(self, projectVersion):
         _PR = PR.getInstance()
         tarFileStatus, modifyAccess = 0, 0
-        backTARFilePath = self.backupFilePath + os.sep + projectVersion + ".tar.gz"
+        backTARFilePath = self.backupFilePath + os.sep + str(projectVersion) + ".tar.gz"
         tarCmd = "tar -xzf %s -C %s" % (backTARFilePath, F.getFileParentPath(backTARFilePath))
         logObj.info("unzip file, exec: tar -xzf %s -C %s" % (backTARFilePath, F.getFileParentPath(backTARFilePath)))
 
@@ -73,8 +74,8 @@ class ProjectFunc:
     # 更新jersy项目 替换配置文件、war包
     def replaceJersyResource(self, projectVersion):
         _PR = PR.getInstance()
-        unzipFileStatus, cpConfStatus, updateWarStatus, updateResourceStatus, modifyAccessStatus = 0, 0, 0, 0, 0
-        updateFilePath = self.backupFilePath + os.sep + projectVersion
+        unzipFileStatus, cpConfStatus, updateWarStatus, updateResourceStatus = 0, 0, 0, 0
+        updateFilePath = self.backupFilePath + os.sep + str(projectVersion)
         warUzipPath = updateFilePath + os.sep + self.projectName
         warFile = warUzipPath + ".war"
         F.makedir(warUzipPath)
@@ -83,8 +84,7 @@ class ProjectFunc:
         unzipFileStatus = os.system(unzipCmd)
         if int(unzipFileStatus):
             return _PR.setCode(PR.Code_ERROR).setMsg('解压war包异常失败')
-        cpConfCmd = "\cp -rf %s/* %s/" % (self.backupConfPath,
-                                          warUzipPath + os.sep + "WEB-INF" + os.sep + "classes")
+        cpConfCmd = "\cp -rf %s/* %s/" % (self.backupConfPath,warUzipPath + os.sep + "WEB-INF" + os.sep + "classes")
         logObj.info("replacement profile, exec: %s" % (cpConfCmd))
         cpConfStatus = os.system(cpConfCmd)
         if int(cpConfStatus):
@@ -104,49 +104,47 @@ class ProjectFunc:
             updateResourceStatus = os.system(cpCmd)
             if int(updateResourceStatus):
                 return _PR.setCode(PR.Code_ERROR).setMsg('替换war包解压资源失败')
-            chownCmd = "chown -R tomcat:tomcat %s" % (projectpath)
+            chownCmd = "chown -R tomcat:tomcat %s" % (webappsPath)
             logObj.info("modify file permission, exec：%s" % (chownCmd))
-            modifyAccessStatus = os.system(chownCmd)
-            if int(modifyAccessStatus):
-                return _PR.setCode(PR.Code_ERROR).setMsg('修改项目文件权限失败')
+            os.system(chownCmd)
         return _PR.setCode(PR.Code_OK).setMsg('更新资源成功')
 
     # 更新LEAP项目资源
     def replaceLEAPResource(self, projectVersion):
-        updateFilePath = self.backupFilePath + os.sep + projectVersion
+        updateFilePath = self.backupFilePath + os.sep + str(projectVersion)
         updatelibPath = updateFilePath + os.sep + "lib"
         updateResourceLib = updateFilePath + os.sep + "ResourceLib"
         updateStatic = updateFilePath + os.sep + "static"
         _PR = PR.getInstance()
         updateLibStatus, updateResourceLibStatus, updateStaticStatus = 0, 0, 0
-        if F.isExitsPath(updatelibPath):
-            cpLibCmd = "\cp -rf %s/* %s" % (updatelibPath, self.projectlibPath)
+        if F.isHasContent(updatelibPath):
+            cpLibCmd = "\cp -rf %s/* %s" % (updatelibPath, self.projectLibPath)
             logObj.info("copy lib package, exec: " + cpLibCmd)
             updateLibStatus = os.system(cpLibCmd)
             if int(updateLibStatus):
                 return _PR.setCode(PR.Code_ERROR).setMsg("替换lib资源异常失败")
 
-            modifylibAccCmd = "chown -R tomcat:tomcat %s" % updatelibPath
+            modifylibAccCmd = "chown -R tomcat:tomcat %s" %(self.projectLibPath)
             logObj.info("Modify project lib package permissions, exec: " + modifylibAccCmd)
             os.system(modifylibAccCmd)
 
-        if F.isExitsPath(updateResourceLib):
+        if F.isHasContent(updateResourceLib):
             cpResourceLibCmd = "\cp -rf %s/* %s" % (updateResourceLib, self.projectResourceLib)
             logObj.info("copy ResourceLib package, exec: " + cpResourceLibCmd)
             updateResourceLibStatus = os.system(cpResourceLibCmd)
             if int(updateResourceLibStatus):
                 return _PR.setCode(PR.Code_ERROR).setMsg("替换ResourceLib资源异常失败")
-            modifyResourceLibAccCmd = "chown -R tomcat:tomcat %s" % (updateResourceLib)
+            modifyResourceLibAccCmd = "chown -R tomcat:tomcat %s" % (self.projectResourceLib)
             logObj.info("Modify project ResourceLib package permissions, exec: " + modifyResourceLibAccCmd)
             os.system(modifyResourceLibAccCmd)
 
-        if F.isExitsPath(updateStatic):
+        if F.isHasContent(updateStatic):
             cpStaticPathCmd = "\cp -rf %s/* %s" % (updateStatic, self.projectStaticPath)
             logObj.info("copy static package,exec: " + cpStaticPathCmd)
             updateStaticStatus = os.system(cpStaticPathCmd)
             if int(updateStaticStatus):
                 return _PR.setCode(PR.Code_ERROR).setMsg("替换static资源异常失败")
-            modifyStaticAccCmd = "chown -R tomcat:tomcat %s" % (updateStatic)
+            modifyStaticAccCmd = "chown -R tomcat:tomcat %s" % (self.projectStaticPath)
             logObj.info("Modify project static package permissions, exec: " + modifyStaticAccCmd)
             os.system(modifyStaticAccCmd)
         return _PR.setCode(PR.Code_OK).setMsg("替换版本资源包成功")

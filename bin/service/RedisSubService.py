@@ -26,8 +26,8 @@ class ProjectFunc:
         self.projectHome = self.projectInfo["projectHome"]
         self.tomcatInfo = dict(self.projectInfo["tomcatInfo"])
 
-        self.proxyVersionPath = self.sftpInfo["proxyPath"] + os.sep + self.projectName + os.sep + self.projectVersion
-        self.localVersionPath = self.projectInfo["backupFilePath"] + os.sep + self.projectVersion
+        self.proxyVersionPath = self.sftpInfo["proxyPath"] + os.sep + self.projectName + os.sep + str(self.projectVersion)
+        self.localVersionPath = self.projectInfo["backupFilePath"] + os.sep + str(self.projectVersion)
         self.proxyCMPFilePath = self.proxyVersionPath + ".tar.gz"
         self.localCMPFilePath = self.localVersionPath + ".tar.gz"
 
@@ -163,8 +163,6 @@ class ProjectFunc:
             cpStaticPathCmd = "\cp -rf %s/* %s" % (updatestatic, projectStaticPath)
             logObj.info("copy static package,exec: " + cpStaticPathCmd)
             os.system(cpStaticPathCmd)
-
-
 
 def getInstance(info):
     return ProjectFunc(info)

@@ -112,16 +112,15 @@ class Tomcat(object):
         serviceCheckUrl = projectInfo.get("serviceCheckUrl", None)
         restartSuccessedTomcat = []
         for infoList in tomcatInfo:
+            LogObj.info("进行%s项目重启，正在重启%s，还未重启的有%s，服务重启成功的有%s" % (projectName, infoList["name"], str(tomcatInfo[tomcatInfo.index(infoList) + 1:]), str(restartSuccessedTomcat)))
             Nginx.closeNginxUpstream(infoList["port"])
             if not self.stopTomcat(infoList["name"], maxRestartCount):
                 return _PR.setMsg("关闭%s失败，还未重启的有%s，重启成功的有%s" % (infoList["name"], str(tomcatInfo[tomcatInfo.index(infoList) + 1:]), str(restartSuccessedTomcat))).setCode(PR.Code_ERROR)
-
             if not self.startTomcat(infoList["name"], maxRestartCount):
                 return _PR.setMsg("启动%s失败，还未重启的有%s，重启成功的有%s" % (infoList["name"], str(tomcatInfo[tomcatInfo.index(infoList) + 1:]), str(restartSuccessedTomcat))).setCode(PR.Code_ERROR)
 
             if serviceCheckUrl:
-                # checkurl = "http://" + str(serverIp) + ":" + str(infoList["port"]) + os.sep + str(serviceCheckUrl)
-                checkurl = "http://" + str(serverIp) + os.sep + str(serviceCheckUrl)
+                checkurl = "http://" + str(serverIp) + ":" + str(infoList["port"]) + os.sep + str(serviceCheckUrl)
                 if U.checkService(infoList["port"], checkurl, maxCheckTime):
                     Nginx.openNginxUpstream(infoList["port"])
                     LogObj.info("%s corresponding service started success" % (infoList["name"]))

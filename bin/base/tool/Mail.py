@@ -10,8 +10,10 @@ import smtplib
 from email.mime.text import MIMEText
 from email.utils import formataddr
 from bin.base.log import PrintLog
+import bin
 
 LogObj = PrintLog.getInstance()
+
 
 class Mail:
     def __init__(self):
@@ -21,15 +23,14 @@ class Mail:
         sender = 'OAMP_anget'
         seder_EMail = 'yuantc@longrise.com.cn'
         seder_passwd = '20180423'  # 发件人邮箱账号，正式环境时配置
-
         if not receivers:
             receivers = ['运维部人员']
         if not receivers_EMail:
-            receivers_EMail = ['yuantc@longrise.com.cn','wuqiang@longrise.com.cn','yaogc@longrise.com.cn']
-
+            receivers_EMail = ['yuantc@longrise.com.cn', 'wuqiang@longrise.com.cn', 'yaogc@longrise.com.cn']
         if subject is None:
             subject = "运维平台消息"
-
+        serverIp = bin.CONF_INFO.get('localIp')
+        msg_content = "服务器[%s] %s" % (serverIp,str(msg_content))
         ret = True
         try:
             msg = MIMEText(msg_content, 'plain', 'utf-8')
