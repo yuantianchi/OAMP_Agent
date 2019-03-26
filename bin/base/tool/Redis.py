@@ -31,6 +31,13 @@ class Redis(object):
             return None
         return json.loads(str(redis_data, encoding="utf-8"))
 
+    #模糊查询获取key
+    def fuzzy_getKeys(self,key):
+        redis_data = self.redis.keys(pattern=key)
+        if redis_data is None:
+            return []
+        data = [i.decode('utf-8') for i in list(redis_data)]
+        return data
 
 def getInstance(host='127.0.0.1', port=6379, db=0, password=None):
     return Redis(host=host, port=port, db=db, password=password)

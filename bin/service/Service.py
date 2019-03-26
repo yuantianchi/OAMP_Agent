@@ -49,7 +49,7 @@ class Service(tornado.web.RequestHandler):
             L.info("接受到客户端请求执行%s操作，完整请求：%s" % (method, str(data)))
             r = getattr(SL, method)(data)
             if r.getCode() == PR.Code_OK:
-                L.info("msg:" + str(r.getMsg()) + ",data:" + str(r.getData()))
+                L.info("msg:" + str(r.getMsg()))
             elif r.getCode() == PR.Code_ERROR:
                 L.error("msg:" + str(r.getMsg()))
             else:
@@ -65,3 +65,16 @@ class Service(tornado.web.RequestHandler):
     @gen.coroutine
     def get(self):
         self.post()
+
+
+
+#agent 服务自检
+class ServiceCheck(tornado.web.RequestHandler):
+
+    def get(self):
+        self.post()
+
+    def post(self, *args, **kwargs):
+        data = {"status": 1}
+        self.write(data)
+

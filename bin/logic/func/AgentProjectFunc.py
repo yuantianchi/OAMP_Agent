@@ -165,14 +165,67 @@ class AgentProjectFunc(object):
         else:
             return _PR.setCode(PR.Code_ERROR).setMsg('项目重启操作执行错误:redis 存储方法体失败')
 
+    # 重启项目对应的所有tomcat
+    def restartProjectOneTomcat(self, info):
+        _PR = PR.getInstance()
+        projectName = info.get("projectName")
+        tomcatInfo = info.get("tomcatInfo")
+        if not projectName or not tomcatInfo:
+            return _PR.setCode(PR.Code_ERROR).setMsg('重启失败，项目名或tomcatInfo信息为空').setData(projectName)
+        if projectName not in bin.PROJECT_INFO:
+            return _PR.setCode(PR.Code_ERROR).setMsg('重启项目%s 的容器%s失败，agent中还未配置%s项目信息' % (projectName, str(tomcatInfo))).setData(projectName)
+
+        opt_id = info.get("opt_id", '1')
+        # 1、调用参数和方法写入redis
+        # 2、等待redis执行
+        redis_conf_info = bin.CONF_INFO.get('redis')
+        fun_redis_ins = FuncRedisModifier.getInstance(redis_conf_info, projectName)
+        if not fun_redis_ins.init_redis() is None:
+            return _PR.setCode(PR.Code_ERROR).setMsg('当前项目有操作未完成，请稍后')
+        fun_redis_ins.set_func_method('restart_project_one_tomcat', info)
+        fun_redis_ins.set_func_opt_id(opt_id)
+        fun_redis_ins.set_func_state_start()
+        _result = fun_redis_ins.set_func_summary('重启项目%s 的容器%s，开始执行' % (projectName, str(tomcatInfo))).set_redis()
+        if _result:
+            result = {"projectName": projectName}
+            return _PR.setCode(PR.Code_OK).setMsg('重启项目%s 的容器%s,命令启动成功' % (projectName, str(tomcatInfo)))
+        else:
+            return _PR.setCode(PR.Code_ERROR).setMsg('重启项目%s 的容器%s操作执行错误:redis 存储方法体失败' % (projectName, str(tomcatInfo)))
+
+    # 后台调用--重启项目的某个容器
+    def _restart_project_one_tomcat(self, redis_info, redis_k):
+        try:
+            run_redis_info = FuncRedisModifier.getInstance(redis_k=redis_k, redis_info=redis_info).init_redis()
+            func_data = run_redis_info.get_func_method_par()
+            run_redis_info.set_func_summary('正在执行%s项目重启' % str(redis_k)).set_redis()
+            projectName = func_data.get("projectName")
+            tomcatInfo = func_data.get("tomcatInfo")
+            restart_pr = TomcatFun.getInstance().restartProjectOneTomcat(projectName, tomcatInfo)
+        except Exception as  e:
+            LogObj.error('重启项目%s 的容器%s失败，等待重试' % (str(redis_k), str(tomcatInfo)))
+            run_redis_info.set_func_state_start()
+            run_redis_info.set_func_summary('重启项目%s 的容器%s失败，等待重试' % (str(redis_k), str(tomcatInfo))).set_redis()
+
+        if restart_pr.getCode() == PR.Code_OK:
+            run_redis_info.set_func_state_end()
+            run_redis_info.set_func_summary('重启项目%s 的容器%s成功，执行成功' % (str(redis_k), str(tomcatInfo))).set_redis()
+        else:
+            run_redis_info.set_func_state_start()
+            run_redis_info.set_func_summary('重启项目%s 的容器%s失败，等待重试' % (str(redis_k), str(tomcatInfo))).set_redis()
+
     # 后台进程调用--重启项目
     def _project_restart(self, redis_info, redis_k):
-        run_redis_info = FuncRedisModifier.getInstance(redis_k=redis_k, redis_info=redis_info).init_redis()
-        func_data = run_redis_info.get_func_method_par()
-        run_redis_info.set_func_summary('正在执行%s项目重启' % str(redis_k)).set_redis()
-
-        projectName = func_data.get("projectName")
-        restart_pr = TomcatFun.getInstance().restartProjectTom(projectName)
+        try:
+            run_redis_info = FuncRedisModifier.getInstance(redis_k=redis_k, redis_info=redis_info).init_redis()
+            func_data = run_redis_info.get_func_method_par()
+            run_redis_info.set_func_summary('正在执行%s项目重启' % str(redis_k)).set_redis()
+            projectName = func_data.get("projectName")
+            restartMode = func_data.get("restartMode", "one_half")
+            restart_pr = TomcatFun.getInstance().restartProjectTom(projectName, restartMode)
+        except Exception as e:
+            LogObj.error('%s项目项目重启，执行失败，等待重试' % str(redis_k))
+            run_redis_info.set_func_state_start()
+            run_redis_info.set_func_summary('%s项目项目重启，执行失败，等待重试' % str(redis_k)).set_redis()
 
         if restart_pr.getCode() == PR.Code_OK:
             run_redis_info.set_func_state_end()
@@ -216,13 +269,19 @@ class AgentProjectFunc(object):
 
     # 后台进程调用--项目更新
     def _project_update(self, redis_info, redis_k):
-        run_redis_info = FuncRedisModifier.getInstance(redis_k=redis_k, redis_info=redis_info).init_redis()
-        func_data = run_redis_info.get_func_method_par()
-        run_redis_info.set_func_summary('正在执行%s项目更新' % str(redis_k)).set_redis()
-        projectName = func_data.get("projectName")
-        projectVersion = func_data.get("projectVersion", None)
-        PF = ProjectFunc.getInstance(projectName)
-        update_pr = PF.updateProject(projectVersion)
+        try:
+            run_redis_info = FuncRedisModifier.getInstance(redis_k=redis_k, redis_info=redis_info).init_redis()
+            func_data = run_redis_info.get_func_method_par()
+            run_redis_info.set_func_summary('正在执行%s项目更新' % str(redis_k)).set_redis()
+            projectName = func_data.get("projectName")
+            projectVersion = func_data.get("projectVersion", None)
+            restartMode = func_data.get("restartMode", "one_half")
+            PF = ProjectFunc.getInstance(projectName)
+            update_pr = PF.updateProject(projectVersion, restartMode)
+        except Exception as e:
+            LogObj.error('%s项目项目更新执行失败，等待重试' % str(redis_k))
+            run_redis_info.set_func_state_start()
+            run_redis_info.set_func_summary('%s项目项目更新执行失败，等待重试' % str(redis_k)).set_redis()
 
         if update_pr.getCode() == PR.Code_OK:
             run_redis_info.set_func_state_end()

@@ -22,7 +22,9 @@ if __name__ == '__main__':
     port = 3099
     context = 'OAMP_agent'
     define("port", default=port, help="run on the given port", type=int)
-    handlers = [(r"/" + context + "/service", Service.Service), ]
+    handlers = [(r"/" + context + "/service", Service.Service),
+                (r"/" + context + "/ServiceCheck", Service.ServiceCheck),  # 上传文件接口
+                ]
     # 应用设置
     app = tornado.web.Application(
         handlers=handlers,

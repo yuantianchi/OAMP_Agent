@@ -40,7 +40,7 @@ class ProjectFunc:
             return _PR.setCode(PR.Code_ERROR).setMsg("%s项目类型未知，请检查配置文件" % (self.projectName))
 
     # 更新项目
-    def updateProject(self, projectVersion):
+    def updateProject(self, projectVersion, restartMode='single'):
         _PR = PR.getInstance()
         handleResourcePR = self.handleResource(projectVersion)
         if handleResourcePR.getCode() != PR.Code_OK:
@@ -48,7 +48,7 @@ class ProjectFunc:
         replaceProjectResourcePR = self.replaceProjectResource(projectVersion)
         if replaceProjectResourcePR.getCode() != PR.Code_OK:
             return replaceProjectResourcePR
-        restartProjectTomPR = Tom.restartProjectTom(self.projectName)
+        restartProjectTomPR = Tom.restartProjectTom(self.projectName,restartMode)
         if restartProjectTomPR != PR.Code_OK:
             return restartProjectTomPR
         logObj.info("%s项目更新成功!" % self.projectName)
@@ -84,7 +84,7 @@ class ProjectFunc:
         unzipFileStatus = os.system(unzipCmd)
         if int(unzipFileStatus):
             return _PR.setCode(PR.Code_ERROR).setMsg('解压war包异常失败')
-        cpConfCmd = "\cp -rf %s/* %s/" % (self.backupConfPath,warUzipPath + os.sep + "WEB-INF" + os.sep + "classes")
+        cpConfCmd = "\cp -rf %s/* %s/" % (self.backupConfPath, warUzipPath + os.sep + "WEB-INF" + os.sep + "classes")
         logObj.info("replacement profile, exec: %s" % (cpConfCmd))
         cpConfStatus = os.system(cpConfCmd)
         if int(cpConfStatus):
@@ -124,7 +124,7 @@ class ProjectFunc:
             if int(updateLibStatus):
                 return _PR.setCode(PR.Code_ERROR).setMsg("替换lib资源异常失败")
 
-            modifylibAccCmd = "chown -R tomcat:tomcat %s" %(self.projectLibPath)
+            modifylibAccCmd = "chown -R tomcat:tomcat %s" % (self.projectLibPath)
             logObj.info("Modify project lib package permissions, exec: " + modifylibAccCmd)
             os.system(modifylibAccCmd)
 

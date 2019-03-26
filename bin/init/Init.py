@@ -16,6 +16,8 @@ LogObj = PrintLog.getInstance()
 jff = JsonFileFunc.getInstance()
 p = Path.getInstance()
 F = File.getInstance()
+MAX_TRY = 2
+SLEEP_TIME = 3
 
 
 # 初始化配置文件到缓存中，创建项目更新文件存放目录
@@ -52,12 +54,15 @@ class Init(object):
             while True:
                 if bin.CONF_INFO is not None and bin.CONF_INFO.get('redis') is not None and bin.PROJECT_INFO is not None:
                     redis_info = bin.CONF_INFO.get('redis')
-                    for k in bin.PROJECT_INFO.keys():
+                    redis_task =list(bin.PROJECT_INFO.keys())
+                    # 查询是否有不属于项目的tomcat在重启
+                    keys = FuncRedisModifier.getInstance(redis_k='restartOneTomcat_tomcatA*', redis_info=redis_info).get_redis_keys()
+                    redis_task.extend(keys)
+                    for k in redis_task:
                         func_redis_ins = FuncRedisModifier.getInstance(redis_k=k, redis_info=redis_info).init_redis()
                         if func_redis_ins is None:
-                            # LogObj.debug('%s项目暂无待执行的方法'% str(k))
+                            # LogObj.debug('%s项目暂无待执行的方法' % str(k))
                             continue
-
                         method = func_redis_ins.get_func_method()
                         func_state = func_redis_ins.get_func_state()
                         fun_summary = func_redis_ins.get_func_summary()
@@ -72,7 +77,7 @@ class Init(object):
 
                         func_record_ins.setOperateId(opt_id)
 
-                        if exec_count > 3:
+                        if exec_count > MAX_TRY:
                             func_state = FuncRedisModifier.REDIS_FUNC_STATE_FAILED
                             summary = '%s项目，执行%s方法未成功超过3次,将结束执行' % (str(k), str(method))
                             LogObj.error(summary)
@@ -84,7 +89,7 @@ class Init(object):
 
                         elif FuncRedisModifier.REDIS_FUNC_STATE_RUN == func_state:
                             summary = '%s项目,执行%s方法,项目状态为执行中，操作相关描述为:%s' % (str(k), method, str(fun_summary))
-                            LogObj.debug(summary)
+                            # LogObj.debug(summary)
 
                         elif FuncRedisModifier.REDIS_FUNC_STATE_END == func_state:
                             record_is_finish = FuncRecordModifier.finished
@@ -102,10 +107,9 @@ class Init(object):
                         elif FuncRedisModifier.REDIS_FUNC_STATE_START == func_state:
                             t = threading.Thread(target=getattr(inner_logic_ins, method), args=(redis_info, k,))
                             t.start()
-                            func_redis_ins.set_func_state_run().set_redis()
+                            func_redis_ins.set_func_state_run().add_exec_count().set_redis()
                             summary = '%s项目,执行%s方法,项目状态为方法执行开始,操作相关描述为:执行开始' % (str(k), method)
                             LogObj.info(summary)
-
                         else:
                             func_redis_ins.add_exec_count().set_redis()
                             record_is_normal = FuncRecordModifier.not_Normal
@@ -118,18 +122,16 @@ class Init(object):
                         func_record_ins.set_FuncRecord()
                         # fixed 等待后续操作内容处理
                         # 修改执行结果内容
-                time.sleep(3)
+                time.sleep(SLEEP_TIME)
         except Exception as e:
-            LogObj.critical("redis 连接异常失败，请检查配置信息，和网络情况")
-            bin.REDIS_FUNC_RECEIVER_STATUS=0
+            LogObj.critical("redis 连接异常失败，请检查配置信息和网络情况，异常信息：%s" % str(e))
+            bin.REDIS_FUNC_RECEIVER_STATUS = 0
             # Mail.getInstance().sendMail("服务器%s agent运行时redis 连接异常失败，请检查配置信息，和网络情况"%(local_ip))
-
-
 
     # 初始化redis 方法接收者
     def init_redis_func_receiver(self):
         if bin.REDIS_FUNC_RECEIVER_STATUS != 1:
-            bin.REDIS_FUNC_RECEIVER_STATUS=1
+            bin.REDIS_FUNC_RECEIVER_STATUS = 1
         t = threading.Thread(target=self.exec, name='threadFuncReceiverTask', daemon=True)
         t.start()
 

@@ -43,10 +43,13 @@ class Service_logic():
     def getProjectStatus(self,info):
         return AgentProjectFunc.getInstance().getProjectStatus(info=info)
 
-    # 单独重启某个tomcat
-    def restartOneTomcat(self, info):
-        return AgentTomcatFunc.getInstance().restartOneTomcat(info=info)
+    # 单独重启项目的某个tomcat
+    def restartProjectOneTomcat(self, info):
+        return AgentProjectFunc.getInstance().restartProjectOneTomcat(info=info)
 
+    # 重启某个tomcat---不属于项目忽略检查
+    def restartOneTomcat(self,info):
+        return AgentTomcatFunc.getInstance().restartOneTomcat(info=info)
     # 单独停止某个tomcat
     def stopOneTomcat(self, info):
         return AgentTomcatFunc.getInstance().stopOneTomcat(info=info)
@@ -54,6 +57,7 @@ class Service_logic():
     # 单独启动某个tomcat
     def startOneTomcat(self, info):
         return AgentTomcatFunc.getInstance().startOneTomcat(info=info)
+
 
 
 

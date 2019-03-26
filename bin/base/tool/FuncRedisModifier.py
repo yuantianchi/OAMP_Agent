@@ -4,6 +4,7 @@ import bin
 from bin.base.tool import Redis
 from bin.base.tool import Mail
 import sys
+
 REDIS_FUNC_DB = 1
 REDIS_FUNC_STATE_NONE = -2
 REDIS_FUNC_STATE_START = -1
@@ -13,14 +14,14 @@ REDIS_FUNC_STATE_FAILED = 2
 
 
 class FuncRedisModifier(object):
-
     def __init__(self, redis_info=None, redis_k=None):
         from bin.base.log import PrintLog
-        L=PrintLog.getInstance()
+        L = PrintLog.getInstance()
         local_ip = bin.CONF_INFO.get('localIp')
         host = redis_info.get('host', '127.0.0.1')
         password = redis_info.get('password')
         port = redis_info.get('port', 6379)
+
         self.redis_ins = Redis.getInstance(db=REDIS_FUNC_DB, host=host, port=port, password=password)
         self.redis_k = redis_k
         self.fun_state = REDIS_FUNC_STATE_NONE
@@ -29,7 +30,8 @@ class FuncRedisModifier(object):
         self.method = ''
         self.method_par = None
         self.opt_id = None
-        self.redis_store_key = str(local_ip) + '_' + str(self.redis_k)
+        self.default_prefix=str(local_ip) + '_'
+        self.redis_store_key = self.default_prefix + str(self.redis_k)
 
     def json(self):
         item = {
@@ -99,6 +101,11 @@ class FuncRedisModifier(object):
         self.method_par = redis_data.get('method_par')
         self.opt_id = redis_data.get('opt_id')
         return self
+
+    def get_redis_keys(self):
+        redis_key = self.redis_ins.fuzzy_getKeys(key=self.redis_store_key)
+        redis_key=[str(i)[len(self.default_prefix):] for i in redis_key]
+        return redis_key
 
     def set_redis(self):
         return self.redis_ins.setJson(key=self.redis_store_key, value=self.json(), ex=36000)
